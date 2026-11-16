@@ -4,6 +4,7 @@
  "usage": {},
  "next_id": 1,
  "notice": null,
- "has_key": null,
- "source": "Google Flights (via SerpApi)"
+ "has_key": false,
+ "source": "Google Flights (via SerpApi)",
+ "updated_at": "2026-11-16T16:21:48Z"
 }
