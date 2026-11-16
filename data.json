@@ -2,45 +2,6 @@
  "version": 1,
  "trackers": [
   {
-   "id": 2,
-   "origin": "VTZ",
-   "destination": "COK",
-   "travel_date": "2026-12-16",
-   "flights": [
-    "6E731",
-    "6E120"
-   ],
-   "period_days": 60,
-   "checks_per_day": 2,
-   "currency": "INR",
-   "with_sellers": true,
-   "status": "active",
-   "created_at": "2026-11-16T17:07:46Z",
-   "ends_at": "2027-01-15T17:07:46Z",
-   "last_checked_at": "2026-11-16T17:07:46Z",
-   "next_check_at": "2026-11-17T04:47:46Z",
-   "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI2LTEyLTE2agcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
-   "readings": [
-    {
-     "status": "ok",
-     "price": 13485,
-     "currency": "INR",
-     "seller": "IndiGo",
-     "sellers": [
-      {
-       "name": "IndiGo",
-       "price": 13485
-      }
-     ],
-     "dep_time": "2026-12-16 18:15",
-     "arr_time": "2026-12-16 23:00",
-     "via": "MAA",
-     "detail": null,
-     "checked_at": "2026-11-16T17:07:46Z"
-    }
-   ]
-  },
-  {
    "id": 3,
    "origin": "VTZ",
    "destination": "COK",
@@ -87,5 +48,5 @@
  "notice": null,
  "has_key": true,
  "source": "Google Flights (via SerpApi)",
- "updated_at": "2026-11-16T17:19:42Z"
+ "updated_at": "2026-11-16T17:20:11Z"
 }
