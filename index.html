@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flight Price Tracker</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Flight Prices">
+<meta name="theme-color" content="#f9f9f7">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10); --series: #2a78d6;
+  --wash: rgba(42,120,214,0.10); --good: #006300; --bad: #d03b3b; --warn-bg: #fff4d6;
+  --field: #ffffff; --btn: #0b0b0b; --btn-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --series: #3987e5;
+    --wash: rgba(57,135,229,0.14); --good: #0ca30c; --bad: #e66767; --warn-bg: #3a3118;
+    --field: #0d0d0d; --btn: #f0efec; --btn-ink: #0b0b0b;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1040px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 16px 56px; }
+code { font-size: 0.92em; background: var(--wash); padding: 1px 5px; border-radius: 4px; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+h1 { font-size: 22px; margin: 0; font-weight: 650; }
+h2 { font-size: 16px; margin: 0 0 12px; font-weight: 650; }
+.sub { color: var(--ink2); font-size: 13px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.banner { background: var(--warn-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; }
+.banner ol { margin: 8px 0 12px 18px; padding: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 14px; }
+label { display: block; font-size: 12.5px; color: var(--ink2); margin-bottom: 4px; }
+input, select { width: 100%; padding: 10px 10px; font: inherit; font-size: 16px; color: var(--ink); background: var(--field);
+  border: 1px solid var(--axis); border-radius: 7px; }
+input:focus, select:focus, button:focus-visible, svg:focus-visible { outline: 2px solid var(--series); outline-offset: 1px; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13.5px; color: var(--ink); margin: 0; }
+.check input { width: auto; }
+button { font: inherit; padding: 10px 14px; border-radius: 7px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); font-weight: 600; }
+button.danger { color: var(--bad); }
+button:disabled { opacity: .55; cursor: default; }
+.msg { font-size: 13.5px; margin-top: 10px; min-height: 1.2em; }
+.msg.err { color: var(--bad); }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tab { padding: 7px 12px; border-radius: 999px; font-size: 13.5px; }
+.tab[aria-selected="true"] { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+.title { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; justify-content: space-between; }
+.title h2 { margin: 0; font-size: 18px; }
+.chip { font-size: 12px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--axis); color: var(--ink2); white-space: nowrap; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0 6px; }
+.tile { border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; }
+.tile .k { font-size: 12.5px; color: var(--ink2); }
+.tile .v { font-size: 24px; font-weight: 650; line-height: 1.25; }
+.tile .d { font-size: 12.5px; color: var(--ink2); }
+.up { color: var(--bad); } .down { color: var(--good); }
+.chart { position: relative; margin-top: 10px; }
+.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.chart svg:focus { outline: none; }
+@media (max-width: 560px) {
+  table { font-size: 12.5px; }
+  th, td { padding: 6px 5px; }
+  th:nth-child(3), td:nth-child(3) { display: none; }
+  th:last-child, td:last-child { min-width: 64px; }
+}
+.tick { font-size: 11.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.endlabel { font-size: 12.5px; font-weight: 650; fill: var(--ink); }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 14px rgba(0,0,0,.14); min-width: 150px; max-width: 260px; display: none; z-index: 2; }
+.tip b { display: block; font-size: 16px; }
+.tip .t { color: var(--ink2); margin-bottom: 4px; }
+.tip .s { display: flex; justify-content: space-between; gap: 14px; color: var(--ink2); }
+.empty { color: var(--ink2); padding: 28px 0; text-align: center; }
+.note { font-size: 13px; color: var(--ink2); margin-top: 8px; }
+.alert { font-size: 13px; border-left: 3px solid var(--bad); padding: 6px 10px; margin-top: 12px; background: var(--wash); overflow-wrap: anywhere; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink2); font-weight: 600; font-size: 12.5px; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+th:last-child, td:last-child { min-width: 96px; }
+.scroll { overflow-x: auto; max-height: 420px; overflow-y: auto; }
+a { color: var(--series); }
+details summary { cursor: pointer; font-weight: 600; margin-top: 14px; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <h1>Flight Price Tracker</h1>
+    <div class="sub">Prices from Google Flights, read through SerpApi. Checked every hour by GitHub, with no device needing to stay on.</div>
+  </div>
+  <div class="row sub" id="keybar"></div>
+</header>
+
+<div id="setup" class="banner" hidden>
+  <strong>GitHub does not have your SerpApi key yet</strong>
+  <div style="margin-top:6px">No prices can be fetched until it does. In the repository on GitHub open <b>Settings</b>, then <b>Secrets and variables</b>, then <b>Actions</b>, and add a repository secret named <code>SERPAPI_KEY</code> with your key as its value.</div>
+</div>
+<div id="notice" class="banner" hidden></div>
+<div id="working" class="banner" hidden></div>
+
+<section class="card">
+  <h2>Track a flight</h2>
+  <form id="form" autocomplete="off">
+    <div class="grid">
+      <div><label for="origin">From (airport code)</label><input id="origin" list="airports" placeholder="VTZ" required autocapitalize="characters" spellcheck="false"></div>
+      <div><label for="destination">To (airport code)</label><input id="destination" list="airports" placeholder="COK" required autocapitalize="characters" spellcheck="false"></div>
+      <div><label for="travel_date">Travel date</label><input id="travel_date" type="date" required></div>
+      <div><label for="flights">Flight number(s)</label><input id="flights" placeholder="6E731, 6E120" required autocapitalize="characters" spellcheck="false">
+        <div class="hint">Connecting flight: enter each leg in order.</div></div>
+      <div><label for="period_days">Track for</label>
+        <select id="period_days"><option value="30">1 month</option><option value="60">2 months</option><option value="90">3 months</option></select></div>
+      <div><label for="checks_per_day">Check the price</label>
+        <select id="checks_per_day"><option value="1">Once a day</option><option value="2" selected>Twice a day</option><option value="4">4 times a day</option></select></div>
+      <div><label for="currency">Currency</label>
+        <select id="currency"><option>INR</option><option>USD</option><option>AED</option><option>EUR</option><option>GBP</option><option>SGD</option></select></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <label class="check"><input type="checkbox" id="with_sellers" checked> Also record which sites sell it and at what price (1 extra search per check)</label>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="primary" type="submit" id="submit">Start tracking</button>
+      <span class="sub" id="estimate"></span>
+    </div>
+    <div class="msg" id="formmsg"></div>
+  </form>
+  <datalist id="airports"></datalist>
+</section>
+
+<section id="trackers"></section>
+
+<section class="card">
+  <h2>Changes from this device</h2>
+  <div id="tokenbox"></div>
+</section>
+</main>
+
+<script>
+"use strict";
+const AIRPORTS = {VTZ:"Visakhapatnam",COK:"Kochi",DEL:"Delhi",BOM:"Mumbai",BLR:"Bengaluru",MAA:"Chennai",HYD:"Hyderabad",CCU:"Kolkata",GOI:"Goa (Dabolim)",GOX:"Goa (Mopa)",PNQ:"Pune",AMD:"Ahmedabad",JAI:"Jaipur",LKO:"Lucknow",TRV:"Thiruvananthapuram",CCJ:"Kozhikode",CNN:"Kannur",IXE:"Mangaluru",CJB:"Coimbatore",IXM:"Madurai",TRZ:"Tiruchirappalli",VGA:"Vijayawada",TIR:"Tirupati",RJA:"Rajahmundry",BBI:"Bhubaneswar",PAT:"Patna",IXR:"Ranchi",GAU:"Guwahati",IXB:"Bagdogra",NAG:"Nagpur",IDR:"Indore",BHO:"Bhopal",RPR:"Raipur",VNS:"Varanasi",ATQ:"Amritsar",IXC:"Chandigarh",SXR:"Srinagar",IXJ:"Jammu",DED:"Dehradun",UDR:"Udaipur",JDH:"Jodhpur",STV:"Surat",BDQ:"Vadodara",IXZ:"Port Blair",IXA:"Agartala",IMF:"Imphal",DXB:"Dubai",AUH:"Abu Dhabi",SHJ:"Sharjah",DOH:"Doha",MCT:"Muscat",KWI:"Kuwait",RUH:"Riyadh",JED:"Jeddah",BAH:"Bahrain",SIN:"Singapore",KUL:"Kuala Lumpur",BKK:"Bangkok",CMB:"Colombo",LHR:"London Heathrow"};
+const $ = id => document.getElementById(id);
+const SVGNS = "http://www.w3.org/2000/svg";
+let STATE = null, selected = null, confirmDelete = null;
+
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null) e.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return e;
+}
+function s(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function money(v, cur) {
+  try { return new Intl.NumberFormat("en-IN", {style: "currency", currency: cur || "INR", maximumFractionDigits: 0}).format(v); }
+  catch (e) { return (cur || "") + " " + Math.round(v).toLocaleString("en-IN"); }
+}
+const fmtDay = new Intl.DateTimeFormat(undefined, {day: "numeric", month: "short"});
+const fmtDayTime = new Intl.DateTimeFormat(undefined, {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"});
+const fmtFull = new Intl.DateTimeFormat(undefined, {day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"});
+function dateOnly(iso) { const p = iso.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function longDate(iso) { return new Intl.DateTimeFormat(undefined, {weekday: "short", day: "numeric", month: "short", year: "numeric"}).format(dateOnly(iso)); }
+
+const CFG = (() => {
+  const q = new URLSearchParams(location.search);
+  let owner = q.get("owner"), repo = q.get("repo");
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  if (!owner && m) { owner = m[1]; repo = location.pathname.split("/").filter(Boolean)[0] || (m[1] + ".github.io"); }
+  return {owner, repo, branch: "main", workflow: "tracker.yml"};
+})();
+const API = "https://api.github.com/repos/" + CFG.owner + "/" + CFG.repo;
+const tokenStore = {
+  get() { try { return localStorage.getItem("flightTrackerToken") || ""; } catch (e) { return ""; } },
+  set(v) { try { if (v) localStorage.setItem("flightTrackerToken", v); else localStorage.removeItem("flightTrackerToken"); return true; } catch (e) { return false; } }
+};
+let working = null, tokenRejected = false, lastUpdated = null;
+
+/* Read data.json: fresh from the GitHub API when possible, else the copy published with this page. */
+async function loadData() {
+  if (CFG.owner) {
+    for (const token of (tokenStore.get() ? [tokenStore.get(), ""] : [""])) {
+      try {
+        const headers = {Accept: "application/vnd.github.raw+json"};
+        if (token) headers.Authorization = "Bearer " + token;
+        const res = await fetch(API + "/contents/data.json?ref=" + CFG.branch + "&t=" + Date.now(), {headers, cache: "no-store"});
+        if (res.ok) { if (token) tokenRejected = false; return await res.json(); }
+        if (res.status === 401 && token) { tokenRejected = true; continue; }
+        break;
+      } catch (e) { break; }
+    }
+  }
+  const res = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
+  if (!res.ok) throw new Error("data.json could not be loaded");
+  return await res.json();
+}
+function toState(d) {
+  const month = new Date().toISOString().slice(0, 7);
+  return {
+    has_key: d.has_key, searches_this_month: (d.usage || {})[month] || 0,
+    source: d.source || "Google Flights (via SerpApi)", updated_at: d.updated_at || null, notice: d.notice || null,
+    trackers: (d.trackers || []).slice().sort((a, b) => b.id - a.id).map(t => Object.assign({readings: [], flights: []}, t))
+  };
+}
+async function refresh() {
+  try { STATE = toState(await loadData()); lastUpdated = STATE.updated_at; render(); }
+  catch (e) { if (!STATE) $("trackers").replaceChildren(h("div", {class: "card empty"}, "Could not load the price data. Check the internet connection, then reload the page.")); }
+}
+
+/* Ask GitHub to run the tracker with a request. Needs the access token saved on this device. */
+async function dispatch(inputs) {
+  const token = tokenStore.get();
+  if (!token) throw new Error("NO_TOKEN");
+  let res;
+  try {
+    res = await fetch(API + "/actions/workflows/" + CFG.workflow + "/dispatches", {
+      method: "POST",
+      headers: {Accept: "application/vnd.github+json", Authorization: "Bearer " + token, "Content-Type": "application/json"},
+      body: JSON.stringify({ref: CFG.branch, inputs})
+    });
+  } catch (e) { throw new Error("Could not reach GitHub. Check the internet connection."); }
+  if (res.ok) return;
+  if (res.status === 401) { tokenRejected = true; throw new Error("GitHub rejected the saved access token. It may have expired. Save a new one under \"Changes from this device\"."); }
+  if (res.status === 403 || res.status === 404) throw new Error("The saved access token may not start the tracker. It needs the permission \"Actions: Read and write\" for this repository.");
+  throw new Error("GitHub refused the request (code " + res.status + ").");
+}
+/* After a request, poll until data.json changes (the tracker has finished) or about four minutes pass. */
+async function sendAndWait(inputs, label) {
+  if (working) throw new Error("Another request is still being handled. Please wait for it to finish.");
+  const before = lastUpdated;
+  await dispatch(inputs);
+  working = label + " GitHub usually takes under a minute."; render();
+  try {
+    for (let i = 0; i < 30; i++) {
+      await new Promise(r => setTimeout(r, i < 3 ? WAIT_FAST : WAIT_SLOW));
+      await refresh();
+      if (lastUpdated !== before) return true;
+    }
+    return false;
+  } finally { working = null; render(); }
+}
+let WAIT_FAST = 6000, WAIT_SLOW = 8000;
+const NEED_TOKEN = "To add or change flights from this device, first save an access token under \"Changes from this device\" at the bottom of the page.";
+
+/* ---------- top bar, banners, token card ---------- */
+function renderKey() {
+  const bar = $("keybar"); bar.replaceChildren();
+  $("setup").hidden = STATE.has_key !== false;
+  bar.append(h("span", null, STATE.searches_this_month + " SerpApi searches used this month"));
+  if (STATE.updated_at) bar.append(h("span", null, "\u00b7 updated " + fmtDayTime.format(new Date(STATE.updated_at))));
+  bar.append(h("button", {onclick: () => refresh()}, "Refresh"));
+  const n = $("notice"); n.hidden = !STATE.notice;
+  if (STATE.notice) n.replaceChildren(h("strong", null, fmtDayTime.format(new Date(STATE.notice.at)) + ": "), STATE.notice.message);
+  const w = $("working"); w.hidden = !working; w.textContent = working || "";
+  renderToken();
+}
+function renderToken() {
+  const box = $("tokenbox");
+  if (box.querySelector("#token") && document.activeElement && document.activeElement.id === "token") return; // do not wipe what is being typed
+  const typed = box.querySelector("#token") ? box.querySelector("#token").value : "";
+  box.replaceChildren();
+  const runUrl = "https://github.com/" + CFG.owner + "/" + CFG.repo + "/actions/workflows/" + CFG.workflow;
+  if (tokenStore.get() && !tokenRejected) {
+    box.append(h("div", {class: "sub"}, "An access token is saved in this browser, so this device can add, check, pause and delete flights."),
+      h("div", {class: "row", style: "margin-top:12px"}, h("button", {onclick: () => { tokenStore.set(""); render(); }}, "Remove the token from this device")));
+    return;
+  }
+  if (tokenRejected) box.append(h("div", {class: "alert", style: "margin:0 0 12px"}, "GitHub rejected the saved token. It may have expired; create a new one and save it here."));
+  const input = h("input", {id: "token", type: "password", placeholder: "GitHub access token", style: "max-width:360px", autocomplete: "off", autocapitalize: "off", spellcheck: "false"});
+  input.value = typed;
+  box.append(h("div", {class: "sub"}, "Anyone can view this page, but only a device holding your GitHub access token can add or change flights. One-time setup for this device:"),
+    h("ol", {class: "sub", style: "margin:8px 0 12px 18px;padding:0"},
+      h("li", null, "Open ", h("a", {href: "https://github.com/settings/personal-access-tokens/new", target: "_blank", rel: "noopener"}, "GitHub's new token page"), " and sign in."),
+      h("li", null, "Give it any name and an expiry of your choice. Under Repository access choose \"Only select repositories\" and pick ", h("b", null, CFG.repo || "this repository"), "."),
+      h("li", null, "Under Permissions, Repository permissions, set ", h("b", null, "Actions"), " to \"Read and write\". Leave everything else as it is."),
+      h("li", null, "Press Generate token, copy it, paste it below and save.")),
+    h("div", {class: "row"}, input, h("button", {class: "primary", onclick: saveToken}, "Save token")),
+    h("div", {class: "msg", id: "tokenmsg"}),
+    h("div", {class: "hint"}, "The token is kept only in this browser. Without one you can still add a flight from ", h("a", {href: runUrl, target: "_blank", rel: "noopener"}, "the Run workflow button on GitHub"), "."));
+}
+async function saveToken() {
+  const v = $("token").value.trim(), msg = $("tokenmsg");
+  msg.className = "msg err";
+  if (!v) { msg.textContent = "Paste the token first."; return; }
+  msg.className = "msg"; msg.textContent = "Checking the token\u2026";
+  try {
+    const res = await fetch(API + "/actions/workflows/" + CFG.workflow, {headers: {Accept: "application/vnd.github+json", Authorization: "Bearer " + v}});
+    if (res.status === 401) { msg.className = "msg err"; msg.textContent = "GitHub does not recognise that token. Copy it again from GitHub."; return; }
+    if (!res.ok) { msg.className = "msg err"; msg.textContent = "That token cannot see this repository's Actions. Check steps 2 and 3."; return; }
+  } catch (e) { msg.className = "msg err"; msg.textContent = "Could not reach GitHub to check the token."; return; }
+  if (!tokenStore.set(v)) { msg.className = "msg err"; msg.textContent = "This browser would not store the token (private browsing?)."; return; }
+  $("token").value = ""; $("token").blur(); tokenRejected = false; render();
+}
+
+/* ---------- form ---------- */
+(function initForm() {
+  const dl = $("airports");
+  for (const code in AIRPORTS) dl.append(h("option", {value: code}, AIRPORTS[code] + " (" + code + ")"));
+  const d = new Date(); d.setDate(d.getDate() + 30);
+  const today = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const ymd = x => x.getFullYear() + "-" + pad(x.getMonth() + 1) + "-" + pad(x.getDate());
+  $("travel_date").min = ymd(today); $("travel_date").value = ymd(d);
+  for (const id of ["checks_per_day", "with_sellers", "period_days", "travel_date"]) $(id).addEventListener("change", estimate);
+  estimate();
+})();
+function airportCode(text) {
+  const t = text.trim().toUpperCase();
+  const m = t.match(/\(([A-Z]{3})\)/);
+  if (m) return m[1];
+  if (/^[A-Z]{3}$/.test(t)) return t;
+  for (const code in AIRPORTS) if (AIRPORTS[code].toUpperCase() === t) return code;
+  return t;
+}
+function estimate() {
+  const per = Number($("checks_per_day").value) * ($("with_sellers").checked ? 2 : 1);
+  let text = "About " + per * 30 + " SerpApi searches a month for this flight (free plan: 250).";
+  const travel = $("travel_date").value;
+  if (travel) {
+    const days = Math.floor((dateOnly(travel) - new Date()) / 864e5) + 1;
+    if (days < Number($("period_days").value)) text += " Tracking will stop on the travel date, in about " + Math.max(days, 0) + " days.";
+  }
+  $("estimate").textContent = text;
+}
+const FLIGHT_RE = /(?<![A-Z0-9])([A-Z][A-Z0-9]|[0-9][A-Z])\s*-?\s*0*(\d{1,4})(?!\d)/g;
+function parseFlights(text) { return Array.from(String(text || "").toUpperCase().matchAll(FLIGHT_RE), m => m[1] + m[2]); }
+$("form").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const msg = $("formmsg"); msg.className = "msg err"; msg.textContent = "";
+  const origin = airportCode($("origin").value), destination = airportCode($("destination").value);
+  const flights = parseFlights($("flights").value);
+  if (!/^[A-Z]{3}$/.test(origin)) { msg.textContent = "From must be a 3-letter airport code, for example VTZ."; return; }
+  if (!/^[A-Z]{3}$/.test(destination)) { msg.textContent = "To must be a 3-letter airport code, for example COK."; return; }
+  if (origin === destination) { msg.textContent = "From and To cannot be the same airport."; return; }
+  if (!$("travel_date").value) { msg.textContent = "Choose a travel date."; return; }
+  if (!flights.length) { msg.textContent = "Enter the flight number, for example 6E731. For a connecting flight enter each flight in order: 6E731, 6E120."; return; }
+  if (flights.length > 4) { msg.textContent = "At most 4 connecting flights are supported."; return; }
+  if (!tokenStore.get()) { msg.textContent = NEED_TOKEN; return; }
+  $("submit").disabled = true;
+  const known = new Set((STATE ? STATE.trackers : []).map(t => t.id));
+  try {
+    msg.className = "msg"; msg.textContent = "Sending to GitHub\u2026";
+    const done = await sendAndWait({
+      action: "add", origin, destination, travel_date: $("travel_date").value, flights: flights.join(", "),
+      period_days: $("period_days").value, checks_per_day: $("checks_per_day").value,
+      currency: $("currency").value, with_sellers: String($("with_sellers").checked)
+    }, "Adding " + origin + " to " + destination + " (" + flights.join(" + ") + ") and getting the first price.");
+    const added = STATE.trackers.find(t => !known.has(t.id));
+    if (added) { selected = added.id; $("flights").value = ""; render();
+      const ok = added.readings.some(r => r.status === "ok");
+      msg.textContent = ok ? "Flight added and first price recorded." : "Flight added, but the first check did not find a price. See the note in its card below."; }
+    else if (STATE.notice) { msg.className = "msg err"; msg.textContent = STATE.notice.message; }
+    else msg.textContent = done ? "GitHub finished, but no new flight appeared. Press Refresh in a moment." : "GitHub is taking longer than usual. Press Refresh in a few minutes.";
+  } catch (e) { msg.className = "msg err"; msg.textContent = e.message === "NO_TOKEN" ? NEED_TOKEN : e.message; }
+  $("submit").disabled = false;
+});
+
+/* ---------- trackers ---------- */
+function render() {
+  renderKey();
+  const root = $("trackers"); root.replaceChildren();
+  const list = STATE.trackers;
+  if (!list.length) { root.append(h("div", {class: "card empty"}, "No flights tracked yet. Fill in the form above to start.")); return; }
+  if (!list.some(t => t.id === selected)) selected = list[0].id;
+  if (list.length > 1) {
+    root.append(h("div", {class: "tabs", role: "tablist"}, list.map(t =>
+      h("button", {class: "tab", role: "tab", "aria-selected": String(t.id === selected), onclick: () => { selected = t.id; confirmDelete = null; render(); }},
+        t.origin + " \u2192 " + t.destination + " \u00b7 " + fmtDay.format(dateOnly(t.travel_date)) + " \u00b7 " + t.flights.join("+")))));
+  }
+  root.append(trackerCard(list.find(t => t.id === selected)));
+}
+function statusText(t) {
+  if (t.status === "paused") return "Paused";
+  if (t.status === "finished") return "Finished";
+  if (STATE.has_key === false) return "Waiting for SerpApi key";
+  if (t.next_check_at) return "Next check around " + fmtDayTime.format(new Date(Math.max(new Date(t.next_check_at).getTime() + 20 * 60000, Date.now())));
+  return "First check pending";
+}
+let cardMsg = {};
+function downloadCsv(t) {
+  const cell = v => { let s = v == null ? "" : String(v); if (/^[=+\-@]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const lines = [["checked_at_utc", "from", "to", "travel_date", "flights", "status", "price", "currency", "cheapest_seller", "all_sellers", "source", "note"].join(",")];
+  for (const r of t.readings) lines.push([r.checked_at, t.origin, t.destination, t.travel_date, t.flights.join("+"), r.status, r.price == null ? "" : Math.round(r.price), r.currency || t.currency,
+    r.seller, (r.sellers || []).map(x => x.name + " " + Math.round(x.price)).join("; "), STATE.source, r.detail].map(cell).join(","));
+  const url = URL.createObjectURL(new Blob(["\ufeff" + lines.join("\r\n") + "\r\n"], {type: "text/csv"}));
+  const a = h("a", {href: url, download: "prices_" + t.origin + "-" + t.destination + "_" + t.travel_date + "_" + t.flights.join("-") + ".csv"});
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+function trackerCard(t) {
+  const ok = t.readings.filter(r => r.status === "ok" && r.price != null);
+  const last = t.readings[t.readings.length - 1];
+  const card = h("section", {class: "card"});
+  card.append(h("div", {class: "title"},
+    h("h2", null, t.origin + " \u2192 " + t.destination + " \u00b7 " + t.flights.join(" + ")),
+    h("span", {class: "chip"}, statusText(t))));
+  const facts = ["Travel date " + longDate(t.travel_date)];
+  const lastOk = ok[ok.length - 1];
+  if (lastOk && lastOk.dep_time && lastOk.arr_time) facts.push("departs " + lastOk.dep_time.slice(11) + ", arrives " + lastOk.arr_time.slice(11) + (lastOk.via ? " via " + lastOk.via : ""));
+  facts.push("tracking until " + fmtDay.format(new Date(Math.min(new Date(t.ends_at), dateOnly(t.travel_date).getTime() + 864e5 - 1))));
+  facts.push(t.checks_per_day + (t.checks_per_day === 1 ? " check" : " checks") + " a day");
+  card.append(h("div", {class: "sub"}, facts.join(" \u00b7 ")));
+
+  if (ok.length) {
+    const cur = t.currency, latest = ok[ok.length - 1], first = ok[0];
+    const lo = ok.reduce((a, b) => b.price < a.price ? b : a), hi = ok.reduce((a, b) => b.price > a.price ? b : a);
+    const prev = ok.length > 1 ? ok[ok.length - 2] : null;
+    const delta = (now, then) => {
+      const d = now - then; if (!d) return h("span", null, "no change");
+      return h("span", {class: d > 0 ? "up" : "down"}, (d > 0 ? "\u25b2 " : "\u25bc ") + money(Math.abs(d), cur) + " (" + (d > 0 ? "+" : "\u2212") + Math.abs(d / then * 100).toFixed(1) + "%)");
+    };
+    const pct = (now, then) => {
+      const d = now - then; if (!d) return "No change";
+      return h("span", {class: d > 0 ? "up" : "down"}, (d > 0 ? "\u25b2 " : "\u25bc ") + Math.abs(d / then * 100).toFixed(1) + "%");
+    };
+    card.append(h("div", {class: "tiles"},
+      h("div", {class: "tile"}, h("div", {class: "k"}, "Latest price"), h("div", {class: "v"}, money(latest.price, cur)),
+        h("div", {class: "d"}, prev ? [delta(latest.price, prev.price), " vs previous check"] : fmtDayTime.format(new Date(latest.checked_at)))),
+      h("div", {class: "tile"}, h("div", {class: "k"}, "Lowest seen"), h("div", {class: "v"}, money(lo.price, cur)), h("div", {class: "d"}, fmtDayTime.format(new Date(lo.checked_at)))),
+      h("div", {class: "tile"}, h("div", {class: "k"}, "Highest seen"), h("div", {class: "v"}, money(hi.price, cur)), h("div", {class: "d"}, fmtDayTime.format(new Date(hi.checked_at)))),
+      h("div", {class: "tile"}, h("div", {class: "k"}, "Since tracking began"), h("div", {class: "v"}, ok.length > 1 ? pct(latest.price, first.price) : "\u2013"),
+        h("div", {class: "d"}, (ok.length > 1 ? "from " + money(first.price, cur) + " \u00b7 " : "") + ok.length + (ok.length === 1 ? " price recorded" : " prices recorded")))));
+    const host = h("div", {class: "chart"});
+    card.append(h("div", {class: "sub", style: "margin-top:12px"}, "Ticket price over time, one adult, one way (" + cur + ")"), host);
+    requestAnimationFrame(() => drawChart(host, ok, cur));
+    if (ok.length === 1) card.append(h("div", {class: "note"}, "One price so far. The graph fills in as each scheduled check is recorded."));
+    const src = h("div", {class: "note"}, "Source: " + STATE.source + ". ");
+    if (latest.seller) src.append("Cheapest seller at the latest check: " + latest.seller + ". ");
+    if (t.google_url && /^https:\/\/www\.google\.com\//.test(t.google_url)) src.append(h("a", {href: t.google_url, target: "_blank", rel: "noopener"}, "Open this search on Google Flights"));
+    card.append(src);
+  } else {
+    card.append(h("div", {class: "empty"}, "No price recorded yet."));
+  }
+  if (last && last.status !== "ok" && last.detail) card.append(h("div", {class: "alert"}, (last.status === "error" ? "Last check failed: " : "Last check: ") + last.detail));
+
+  const act = async (action) => {
+    const what = {check: "Getting the current price.", pause: "Pausing this flight.", resume: "Resuming this flight.", delete: "Deleting this flight."}[action];
+    cardMsg = {}; confirmDelete = null;
+    try {
+      const done = await sendAndWait({action, tracker_id: String(t.id)}, what);
+      if (!done) cardMsg = {id: t.id, text: "GitHub is taking longer than usual. Press Refresh in a few minutes."};
+    } catch (e) { cardMsg = {id: t.id, err: true, text: e.message === "NO_TOKEN" ? NEED_TOKEN : e.message}; }
+    render();
+  };
+  const buttons = h("div", {class: "row", style: "margin-top:14px"});
+  if (t.status !== "finished") buttons.append(h("button", {disabled: !!working, onclick: () => act("check")}, "Check price now"));
+  if (t.status === "active") buttons.append(h("button", {disabled: !!working, onclick: () => act("pause")}, "Pause"));
+  if (t.status === "paused") buttons.append(h("button", {disabled: !!working, onclick: () => act("resume")}, "Resume"));
+  if (t.readings.length) buttons.append(h("button", {onclick: () => downloadCsv(t)}, "Download CSV"));
+  buttons.append(confirmDelete === t.id
+    ? h("button", {class: "danger", disabled: !!working, onclick: () => act("delete")}, "Confirm: delete flight and its prices")
+    : h("button", {class: "danger", onclick: () => { confirmDelete = t.id; render(); }}, "Delete"));
+  card.append(buttons);
+  if (cardMsg.id === t.id) card.append(h("div", {class: cardMsg.err ? "msg err" : "msg"}, cardMsg.text));
+
+  if (t.readings.length) {
+    const rows = t.readings.slice().reverse().map(r => h("tr", null,
+      h("td", null, (window.innerWidth < 560 ? fmtDayTime : fmtFull).format(new Date(r.checked_at))),
+      h("td", {class: "num"}, r.price != null ? money(r.price, r.currency || t.currency) : "\u2013"),
+      h("td", null, r.seller || "\u2013"),
+      h("td", null, (r.sellers || []).length ? r.sellers.map(x => x.name + " " + money(x.price, r.currency || t.currency)).join("; ") : "\u2013"),
+      h("td", {style: "overflow-wrap:anywhere"}, r.status === "ok" ? "Recorded" : (r.status === "error" ? "Check failed" : "Not listed") + (r.detail ? ": " + r.detail : ""))));
+    card.append(h("details", {open: t.readings.length <= 12},
+      h("summary", null, "All checks (" + t.readings.length + ")"),
+      h("div", {class: "scroll"}, h("table", null,
+        h("thead", null, h("tr", null, ["Checked", "Price", "Cheapest seller", "Sellers and prices", "Result"].map(x => h("th", null, x)))),
+        h("tbody", null, rows)))));
+  }
+  return card;
+}
+
+/* ---------- chart ---------- */
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+}
+function drawChart(host, pts, cur) {
+  host.replaceChildren();
+  const W = Math.max(host.clientWidth, 280), narrow = W < 480, H = narrow ? 260 : 300, m = {l: narrow ? 52 : 62, r: narrow ? 16 : 86, t: narrow ? 30 : 18, b: 34};
+  const data = pts.map(r => ({t: new Date(r.checked_at).getTime(), v: r.price, r}));
+  let t0 = data[0].t, t1 = data[data.length - 1].t;
+  if (t1 - t0 < 36e5) { t0 -= 432e5; t1 += 432e5; }
+  let lo = Math.min(...data.map(d => d.v)), hi = Math.max(...data.map(d => d.v));
+  if (hi === lo) { lo *= 0.95; hi *= 1.05; }
+  const step = niceStep((hi - lo) / 4) || 1;
+  const y0 = Math.floor(lo / step) * step, y1 = Math.ceil(hi / step) * step;
+  const X = t => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
+  const Y = v => m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b);
+  const sym = (money(0, cur).replace(/[\d.,\s]/g, "")) || "";
+  const tickText = v => v === 0 ? sym + "0" : y1 >= 10000 ? sym + (step >= 1000 ? (v / 1000).toFixed(0) : (v / 1000).toFixed(step >= 100 ? 1 : 2)) + "K" : sym + Math.round(v).toLocaleString("en-IN");
+
+  const svg = s("svg", {viewBox: "0 0 " + W + " " + H, role: "img", tabindex: "0",
+    "aria-label": "Line chart of ticket price over time. " + data.length + " readings from " + money(lo, cur) + " to " + money(hi, cur) + ". Use left and right arrow keys to read each one."});
+  for (let v = y0; v <= y1 + step / 2; v += step) {
+    svg.append(s("line", {x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: v === y0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1}));
+    const tx = s("text", {x: m.l - 8, y: Y(v) + 4, "text-anchor": "end", class: "tick"}); tx.textContent = tickText(v); svg.append(tx);
+  }
+  const span = t1 - t0, plotW = W - m.l - m.r;
+  const f = span < 2 * 864e5 && plotW >= 380 ? fmtDayTime : fmtDay;
+  const n = Math.max(1, Math.min(6, Math.floor(plotW / (f === fmtDayTime ? 190 : 90)))); let lastLabel = "";
+  for (let i = 0; i <= n; i++) {
+    const t = t0 + span * i / n, text = f.format(new Date(t));
+    if (text === lastLabel) continue; lastLabel = text;
+    const tx = s("text", {x: X(t), y: H - 10, "text-anchor": i === 0 ? "start" : i === n ? "end" : "middle", class: "tick"}); tx.textContent = text; svg.append(tx);
+  }
+  if (data.length > 1) {
+    const dpath = data.map((d, i) => (i ? "L" : "M") + X(d.t).toFixed(1) + " " + Y(d.v).toFixed(1)).join(" ");
+    svg.append(s("path", {d: dpath + " L" + X(data[data.length - 1].t).toFixed(1) + " " + Y(y0) + " L" + X(data[0].t).toFixed(1) + " " + Y(y0) + " Z", fill: "var(--wash)"}));
+    svg.append(s("path", {d: dpath, fill: "none", stroke: "var(--series)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round"}));
+  }
+  const showDots = data.length <= 45;
+  data.forEach((d, i) => { if (showDots || i === data.length - 1)
+    svg.append(s("circle", {cx: X(d.t), cy: Y(d.v), r: i === data.length - 1 ? 4.5 : 3.5, fill: "var(--series)", stroke: "var(--surface)", "stroke-width": 2})); });
+  const end = data[data.length - 1];
+  const el = narrow ? s("text", {x: X(end.t) + 6, y: Math.max(14, Y(end.v) - 12), "text-anchor": "end", class: "endlabel"})
+                    : s("text", {x: X(end.t) + 10, y: Y(end.v) + 4, class: "endlabel"});
+  el.textContent = money(end.v, cur); svg.append(el);
+
+  const cross = s("line", {y1: m.t, y2: H - m.b, stroke: "var(--axis)", "stroke-width": 1, visibility: "hidden"});
+  const dot = s("circle", {r: 6, fill: "var(--series)", stroke: "var(--surface)", "stroke-width": 2, visibility: "hidden"});
+  svg.append(cross, dot);
+  const tip = h("div", {class: "tip"}); host.append(svg, tip);
+  let idx = -1;
+  function show(i) {
+    idx = i; const d = data[i], px = X(d.t) / W * host.clientWidth;
+    cross.setAttribute("x1", X(d.t)); cross.setAttribute("x2", X(d.t)); cross.setAttribute("visibility", "visible");
+    dot.setAttribute("cx", X(d.t)); dot.setAttribute("cy", Y(d.v)); dot.setAttribute("visibility", "visible");
+    tip.replaceChildren(h("b", null, money(d.v, cur)), h("div", {class: "t"}, fmtFull.format(new Date(d.t))));
+    const sellers = d.r.sellers || [];
+    sellers.slice(0, 6).forEach(x => tip.append(h("div", {class: "s"}, h("span", null, x.name), h("span", null, money(x.price, cur)))));
+    if (!sellers.length) tip.append(h("div", {class: "s"}, h("span", null, "Google Flights price")));
+    tip.style.display = "block";
+    const tw = tip.offsetWidth; let left = px + 14; if (left + tw > host.clientWidth) left = px - tw - 14;
+    tip.style.left = Math.max(0, left) + "px"; tip.style.top = "8px";
+  }
+  function hide() { idx = -1; cross.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); tip.style.display = "none"; }
+  svg.addEventListener("pointermove", ev => {
+    const box = svg.getBoundingClientRect(), x = (ev.clientX - box.left) / box.width * W;
+    let best = 0, bd = Infinity; data.forEach((d, i) => { const dd = Math.abs(X(d.t) - x); if (dd < bd) { bd = dd; best = i; } });
+    show(best);
+  });
+  svg.addEventListener("pointerdown", ev => svg.dispatchEvent(new PointerEvent("pointermove", ev)));
+  svg.addEventListener("pointerleave", ev => { if (ev.pointerType === "mouse") hide(); });
+  svg.addEventListener("focus", () => { if (idx < 0) show(data.length - 1); });
+  svg.addEventListener("blur", hide);
+  svg.addEventListener("keydown", ev => {
+    if (ev.key === "ArrowLeft") { show(Math.max(0, (idx < 0 ? data.length : idx) - 1)); ev.preventDefault(); }
+    if (ev.key === "ArrowRight") { show(Math.min(data.length - 1, idx + 1)); ev.preventDefault(); }
+  });
+}
+let resizeTimer = null;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => STATE && render(), 150); });
+
+refresh();
+// Prices change at most hourly, so a gentle refresh is enough (and stays inside GitHub's limits).
+setInterval(() => { if (!working && confirmDelete == null && !document.querySelector("svg:focus")) refresh(); }, 5 * 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && !working) refresh(); });
+</script>
+</body>
+</html>

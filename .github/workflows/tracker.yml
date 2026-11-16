@@ -1,0 +1,89 @@
+name: Flight price tracker
+
+# Runs every hour to record any price that is due, and on request from the
+# web page (or from the "Run workflow" button on this page).
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: What to do
+        type: choice
+        default: add
+        options: [add, check, pause, resume, delete, run-due]
+      origin:
+        description: From airport code (add), e.g. VTZ
+        required: false
+      destination:
+        description: To airport code (add), e.g. COK
+        required: false
+      travel_date:
+        description: Travel date (add), as YYYY-MM-DD
+        required: false
+      flights:
+        description: Flight numbers in order (add), e.g. 6E731, 6E120
+        required: false
+      period_days:
+        description: Track for how many days (add)
+        type: choice
+        default: '30'
+        options: ['30', '60', '90']
+      checks_per_day:
+        description: Checks per day (add)
+        type: choice
+        default: '2'
+        options: ['1', '2', '4']
+      currency:
+        description: Currency (add)
+        default: INR
+        required: false
+      with_sellers:
+        description: Also record sellers and their prices (add)
+        type: boolean
+        default: true
+      tracker_id:
+        description: Tracker number (check, pause, resume, delete)
+        required: false
+
+permissions:
+  contents: write
+
+# One run at a time, so two runs never write data.json at once.
+concurrency:
+  group: flight-price-tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Run the tracker
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          REQ_ACTION: ${{ github.event_name == 'schedule' && 'run-due' || inputs.action }}
+          REQ_ORIGIN: ${{ inputs.origin }}
+          REQ_DESTINATION: ${{ inputs.destination }}
+          REQ_TRAVEL_DATE: ${{ inputs.travel_date }}
+          REQ_FLIGHTS: ${{ inputs.flights }}
+          REQ_PERIOD_DAYS: ${{ inputs.period_days }}
+          REQ_CHECKS_PER_DAY: ${{ inputs.checks_per_day }}
+          REQ_CURRENCY: ${{ inputs.currency }}
+          REQ_WITH_SELLERS: ${{ inputs.with_sellers }}
+          REQ_TRACKER_ID: ${{ inputs.tracker_id }}
+        run: python3 tracker.py request
+
+      - name: Save the results
+        run: |
+          git config user.name "flight-price-tracker"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "No changes to save."
+          else
+            git commit -m "Update tracked prices"
+            git push
+          fi
