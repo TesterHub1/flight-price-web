@@ -17,8 +17,8 @@
    "status": "active",
    "created_at": "2026-11-16T17:16:12Z",
    "ends_at": "2027-01-15T17:16:12Z",
-   "last_checked_at": "2026-11-20T19:21:31Z",
-   "next_check_at": "2026-11-21T07:01:31Z",
+   "last_checked_at": "2026-11-21T07:30:55Z",
+   "next_check_at": "2026-11-21T19:10:55Z",
    "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI3LTAxLTExagcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
    "readings": [
     {
@@ -204,6 +204,67 @@
      "via": "MAA",
      "detail": null,
      "checked_at": "2026-11-20T19:21:31Z"
+    },
+    {
+     "status": "ok",
+     "price": 7744,
+     "currency": "INR",
+     "seller": "IndiGo",
+     "sellers": [
+      {
+       "name": "IndiGo",
+       "price": 7744
+      },
+      {
+       "name": "CheapTicket.in",
+       "price": 7749
+      },
+      {
+       "name": "Agoda",
+       "price": 7779
+      },
+      {
+       "name": "Aertrip",
+       "price": 7786
+      },
+      {
+       "name": "Cleartrip",
+       "price": 7849
+      },
+      {
+       "name": "Goibibo",
+       "price": 7849
+      },
+      {
+       "name": "Expedia",
+       "price": 7849
+      },
+      {
+       "name": "Paytm Travel",
+       "price": 7849
+      },
+      {
+       "name": "EaseMyTrip",
+       "price": 7849
+      },
+      {
+       "name": "Trip.com",
+       "price": 7984
+      },
+      {
+       "name": "BudgetAir",
+       "price": 8295
+      },
+      {
+       "name": "Booking.com",
+       "price": 8302
+      }
+     ],
+     "dep_time": "2027-01-11 18:15",
+     "arr_time": "2027-01-11 23:00",
+     "via": "MAA",
+     "detail": null,
+     "checked_at": "2026-11-21T07:30:55Z"
     }
    ]
   },
@@ -223,8 +284,8 @@
    "status": "active",
    "created_at": "2026-11-16T17:37:17Z",
    "ends_at": "2026-12-16T17:37:17Z",
-   "last_checked_at": "2026-11-20T19:21:34Z",
-   "next_check_at": "2026-11-21T07:01:34Z",
+   "last_checked_at": "2026-11-21T07:31:08Z",
+   "next_check_at": "2026-11-21T19:11:08Z",
    "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI2LTEyLTMxagcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
    "readings": [
     {
@@ -424,16 +485,33 @@
      "via": "MAA",
      "detail": null,
      "checked_at": "2026-11-20T19:21:34Z"
+    },
+    {
+     "status": "ok",
+     "price": 10946,
+     "currency": "INR",
+     "seller": "IndiGo",
+     "sellers": [
+      {
+       "name": "IndiGo",
+       "price": 10946
+      }
+     ],
+     "dep_time": "2026-12-31 18:15",
+     "arr_time": "2026-12-31 23:00",
+     "via": "MAA",
+     "detail": null,
+     "checked_at": "2026-11-21T07:31:08Z"
     }
    ]
   }
  ],
  "usage": {
-  "2026-11": 40
+  "2026-11": 44
  },
  "next_id": 5,
  "notice": null,
  "has_key": true,
  "source": "Google Flights (via SerpApi)",
- "updated_at": "2026-11-20T19:21:37Z"
+ "updated_at": "2026-11-21T07:31:12Z"
 }
