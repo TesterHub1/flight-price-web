@@ -17,8 +17,8 @@
    "status": "active",
    "created_at": "2026-11-16T17:16:12Z",
    "ends_at": "2027-01-15T17:16:12Z",
-   "last_checked_at": "2026-11-25T21:18:43Z",
-   "next_check_at": "2026-11-26T08:58:43Z",
+   "last_checked_at": "2026-11-26T09:29:39Z",
+   "next_check_at": "2026-11-26T21:09:39Z",
    "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI3LTAxLTExagcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
    "readings": [
     {
@@ -462,6 +462,23 @@
      "via": "MAA",
      "detail": null,
      "checked_at": "2026-11-25T21:18:43Z"
+    },
+    {
+     "status": "ok",
+     "price": 7744,
+     "currency": "INR",
+     "seller": "IndiGo",
+     "sellers": [
+      {
+       "name": "IndiGo",
+       "price": 7744
+      }
+     ],
+     "dep_time": "2027-01-11 18:15",
+     "arr_time": "2027-01-11 23:00",
+     "via": "MAA",
+     "detail": null,
+     "checked_at": "2026-11-26T09:29:39Z"
     }
    ]
   },
@@ -481,8 +498,8 @@
    "status": "active",
    "created_at": "2026-11-16T17:37:17Z",
    "ends_at": "2026-12-16T17:37:17Z",
-   "last_checked_at": "2026-11-25T21:18:47Z",
-   "next_check_at": "2026-11-26T08:58:47Z",
+   "last_checked_at": "2026-11-26T09:29:42Z",
+   "next_check_at": "2026-11-26T21:09:42Z",
    "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI2LTEyLTMxagcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
    "readings": [
     {
@@ -852,16 +869,33 @@
      "via": "MAA",
      "detail": null,
      "checked_at": "2026-11-25T21:18:47Z"
+    },
+    {
+     "status": "ok",
+     "price": 8562,
+     "currency": "INR",
+     "seller": "IndiGo",
+     "sellers": [
+      {
+       "name": "IndiGo",
+       "price": 8562
+      }
+     ],
+     "dep_time": "2026-12-31 18:15",
+     "arr_time": "2026-12-31 23:00",
+     "via": "MAA",
+     "detail": null,
+     "checked_at": "2026-11-26T09:29:42Z"
     }
    ]
   }
  ],
  "usage": {
-  "2026-11": 80
+  "2026-11": 84
  },
  "next_id": 5,
  "notice": null,
  "has_key": true,
  "source": "Google Flights (via SerpApi)",
- "updated_at": "2026-11-25T21:18:54Z"
+ "updated_at": "2026-11-26T09:29:45Z"
 }
