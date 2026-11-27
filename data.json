@@ -17,8 +17,8 @@
    "status": "active",
    "created_at": "2026-11-16T17:16:12Z",
    "ends_at": "2027-01-15T17:16:12Z",
-   "last_checked_at": "2026-11-27T09:29:18Z",
-   "next_check_at": "2026-11-27T21:09:18Z",
+   "last_checked_at": "2026-11-27T21:13:23Z",
+   "next_check_at": "2026-11-28T08:53:23Z",
    "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI3LTAxLTExagcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
    "readings": [
     {
@@ -529,6 +529,23 @@
      "via": "MAA",
      "detail": null,
      "checked_at": "2026-11-27T09:29:18Z"
+    },
+    {
+     "status": "ok",
+     "price": 7744,
+     "currency": "INR",
+     "seller": "IndiGo",
+     "sellers": [
+      {
+       "name": "IndiGo",
+       "price": 7744
+      }
+     ],
+     "dep_time": "2027-01-11 18:15",
+     "arr_time": "2027-01-11 23:00",
+     "via": "MAA",
+     "detail": null,
+     "checked_at": "2026-11-27T21:13:23Z"
     }
    ]
   },
@@ -548,8 +565,8 @@
    "status": "active",
    "created_at": "2026-11-16T17:37:17Z",
    "ends_at": "2026-12-16T17:37:17Z",
-   "last_checked_at": "2026-11-27T09:29:23Z",
-   "next_check_at": "2026-11-27T21:09:23Z",
+   "last_checked_at": "2026-11-27T21:13:31Z",
+   "next_check_at": "2026-11-28T08:53:31Z",
    "google_url": "https://www.google.com/travel/flights?hl=en&gl=in&curr=INR&tfs=CBwQAhoeEgoyMDI2LTEyLTMxagcIARIDVlRacgcIARIDQ09LQAFIAXABmAEC&tfu=EgQIARAB",
    "readings": [
     {
@@ -970,16 +987,73 @@
      "via": "MAA",
      "detail": null,
      "checked_at": "2026-11-27T09:29:23Z"
+    },
+    {
+     "status": "ok",
+     "price": 8562,
+     "currency": "INR",
+     "seller": "Agoda",
+     "sellers": [
+      {
+       "name": "Agoda",
+       "price": 8497
+      },
+      {
+       "name": "Goibibo",
+       "price": 8547
+      },
+      {
+       "name": "IndiGo",
+       "price": 8562
+      },
+      {
+       "name": "CheapTicket.in",
+       "price": 8567
+      },
+      {
+       "name": "EaseMyTrip",
+       "price": 8617
+      },
+      {
+       "name": "Cleartrip",
+       "price": 8667
+      },
+      {
+       "name": "Paytm Travel",
+       "price": 8667
+      },
+      {
+       "name": "Aertrip",
+       "price": 8712
+      },
+      {
+       "name": "BudgetAir",
+       "price": 9082
+      },
+      {
+       "name": "Trip.com",
+       "price": 9131
+      },
+      {
+       "name": "Kiwi.com",
+       "price": 9994
+      }
+     ],
+     "dep_time": "2026-12-31 18:15",
+     "arr_time": "2026-12-31 23:00",
+     "via": "MAA",
+     "detail": null,
+     "checked_at": "2026-11-27T21:13:31Z"
     }
    ]
   }
  ],
  "usage": {
-  "2026-11": 92
+  "2026-11": 96
  },
  "next_id": 5,
  "notice": null,
  "has_key": true,
  "source": "Google Flights (via SerpApi)",
- "updated_at": "2026-11-27T09:29:29Z"
+ "updated_at": "2026-11-27T21:13:44Z"
 }
